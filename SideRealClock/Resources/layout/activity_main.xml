@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/round_rect"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:typeface="monospace"
+        android:text="Location:"
+        android:id="@+id/tvLocation" />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvLocation"
+        android:background="@drawable/round_rect"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:typeface="monospace"
+        android:text="Latitude:"
+        android:id="@+id/tvLatitude" />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvLatitude"
+        android:background="@drawable/round_rect"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:typeface="monospace"
+        android:text="Longitude:"
+        android:id="@+id/tvLongitude" />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvLongitude"
+        android:background="@drawable/round_rect"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:typeface="monospace"
+        android:text="Zone time:"
+        android:id="@+id/tvZone" />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvZone"
+        android:background="@drawable/round_rect"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:typeface="monospace"
+        android:text="Local sidereal time:"
+        android:id="@+id/tvSide" />
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvSide"
+        android:layout_centerInParent="true"
+        android:scaleType="fitCenter"
+        android:id="@+id/iv1" />
+</RelativeLayout>
