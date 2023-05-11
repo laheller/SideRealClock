@@ -53,7 +53,7 @@ namespace SideRealClock {
             var str = "";
             using (var reader = new StreamReader(Resources.OpenRawResource(Resource.Raw.clock))) str = await reader.ReadToEndAsync();
             var svg1 = SVG.GetFromString(str);
-            iv1.SetBackgroundDrawable(new PictureDrawable(svg1.RenderToPicture()));
+            iv1.SetImageDrawable(new PictureDrawable(svg1.RenderToPicture()));
 
             var doc = new XmlDocument();
             doc.LoadXml(str);
@@ -79,7 +79,7 @@ namespace SideRealClock {
                 secs.SetAttribute("transform", $"rotate({ts1.Seconds * 6} 525,840)");
 
                 var svg2 = SVG.GetFromString(doc.OuterXml);
-                iv1.SetBackgroundDrawable(new PictureDrawable(svg2.RenderToPicture()));
+                iv1.SetImageDrawable(new PictureDrawable(svg2.RenderToPicture()));
 
                 RunOnUiThread(() => {
                     tvZone.Text = $"Zone time:           {DateTime.Now:HH\\:mm\\:ss}";
