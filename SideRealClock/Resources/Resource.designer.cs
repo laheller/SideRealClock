@@ -10180,79 +10180,82 @@ namespace SideRealClock
 			public const int tvLongitude = 2131231200;
 			
 			// aapt resource value: 0x7F0801E1
-			public const int tvSide = 2131231201;
+			public const int tvMoonPhase = 2131231201;
 			
 			// aapt resource value: 0x7F0801E2
-			public const int tvZone = 2131231202;
+			public const int tvSide = 2131231202;
 			
 			// aapt resource value: 0x7F0801E3
-			public const int @unchecked = 2131231203;
+			public const int tvZone = 2131231203;
 			
 			// aapt resource value: 0x7F0801E4
-			public const int uniform = 2131231204;
+			public const int @unchecked = 2131231204;
 			
 			// aapt resource value: 0x7F0801E5
-			public const int unlabeled = 2131231205;
+			public const int uniform = 2131231205;
 			
 			// aapt resource value: 0x7F0801E6
-			public const int up = 2131231206;
+			public const int unlabeled = 2131231206;
 			
 			// aapt resource value: 0x7F0801E7
-			public const int useLogo = 2131231207;
+			public const int up = 2131231207;
 			
 			// aapt resource value: 0x7F0801E8
-			public const int vertical_only = 2131231208;
+			public const int useLogo = 2131231208;
 			
 			// aapt resource value: 0x7F0801E9
-			public const int view_offset_helper = 2131231209;
+			public const int vertical_only = 2131231209;
 			
 			// aapt resource value: 0x7F0801EA
-			public const int view_transition = 2131231210;
+			public const int view_offset_helper = 2131231210;
 			
 			// aapt resource value: 0x7F0801EB
-			public const int view_tree_lifecycle_owner = 2131231211;
+			public const int view_transition = 2131231211;
 			
 			// aapt resource value: 0x7F0801EC
-			public const int view_tree_on_back_pressed_dispatcher_owner = 2131231212;
+			public const int view_tree_lifecycle_owner = 2131231212;
 			
 			// aapt resource value: 0x7F0801ED
-			public const int view_tree_saved_state_registry_owner = 2131231213;
+			public const int view_tree_on_back_pressed_dispatcher_owner = 2131231213;
 			
 			// aapt resource value: 0x7F0801EE
-			public const int view_tree_view_model_store_owner = 2131231214;
+			public const int view_tree_saved_state_registry_owner = 2131231214;
 			
 			// aapt resource value: 0x7F0801EF
-			public const int visible = 2131231215;
+			public const int view_tree_view_model_store_owner = 2131231215;
 			
 			// aapt resource value: 0x7F0801F0
-			public const int visible_removing_fragment_view_tag = 2131231216;
+			public const int visible = 2131231216;
 			
 			// aapt resource value: 0x7F0801F1
-			public const int west = 2131231217;
-			
-			// aapt resource value: 0x7F0801F4
-			public const int withinBounds = 2131231220;
+			public const int visible_removing_fragment_view_tag = 2131231217;
 			
 			// aapt resource value: 0x7F0801F2
-			public const int withText = 2131231218;
-			
-			// aapt resource value: 0x7F0801F3
-			public const int with_icon = 2131231219;
+			public const int west = 2131231218;
 			
 			// aapt resource value: 0x7F0801F5
-			public const int wrap = 2131231221;
+			public const int withinBounds = 2131231221;
+			
+			// aapt resource value: 0x7F0801F3
+			public const int withText = 2131231219;
+			
+			// aapt resource value: 0x7F0801F4
+			public const int with_icon = 2131231220;
 			
 			// aapt resource value: 0x7F0801F6
-			public const int wrap_content = 2131231222;
+			public const int wrap = 2131231222;
 			
 			// aapt resource value: 0x7F0801F7
-			public const int wrap_content_constrained = 2131231223;
+			public const int wrap_content = 2131231223;
 			
 			// aapt resource value: 0x7F0801F8
-			public const int x_left = 2131231224;
+			public const int wrap_content_constrained = 2131231224;
 			
 			// aapt resource value: 0x7F0801F9
-			public const int x_right = 2131231225;
+			public const int x_left = 2131231225;
+			
+			// aapt resource value: 0x7F0801FA
+			public const int x_right = 2131231226;
 			
 			static Id()
 			{

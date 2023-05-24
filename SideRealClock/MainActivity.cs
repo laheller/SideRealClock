@@ -19,6 +19,8 @@ using Xamarin.Essentials;
 using Com.Caverock.Androidsvg;
 using AASharp;
 using JLocale = Java.Util.Locale;
+using System.Collections;
+using System.ComponentModel.Design;
 
 namespace SideRealClock {
     [Activity(Label = "@string/app_name", Theme = "@style/Theme.AppCompat", MainLauncher = true)]
@@ -26,7 +28,8 @@ namespace SideRealClock {
         private LocationManager lm = null;
         private double longitude = 0.0;
         private double latitude = 0.0;
-        private Timer timer = null;
+        private Timer SideRealTimer = null;
+        private Timer LunarTimer = null;
         private Geocoder geocoder = null;
 
         protected override async void OnCreate(Bundle savedInstanceState) {
@@ -45,6 +48,7 @@ namespace SideRealClock {
 
             var tvZone = FindViewById<AppCompatTextView>(Resource.Id.tvZone);
             var tvSide = FindViewById<AppCompatTextView>(Resource.Id.tvSide);
+            var tvMoonPhase = FindViewById<AppCompatTextView>(Resource.Id.tvMoonPhase);
             var iv1 = FindViewById<AppCompatImageView>(Resource.Id.iv1);
             iv1.SetLayerType(Android.Views.LayerType.Hardware, null);
 
@@ -62,8 +66,8 @@ namespace SideRealClock {
             var mins = doc.SelectSingleNode("//*[local-name() = 'path' and @id = 'minutes']") as XmlElement;
             var hour = doc.SelectSingleNode("//*[local-name() = 'path' and @id = 'hours']") as XmlElement;
 
-            timer = new Timer(1000.0) { AutoReset = true, Enabled = false };
-            timer.Elapsed += (s, e) => {
+            SideRealTimer = new Timer(1000.0) { AutoReset = true, Enabled = false };
+            SideRealTimer.Elapsed += (s, e) => {
                 var current = DateTime.UtcNow;
                 var jd = new AASDate(current.Year, current.Month, current.Day, current.Hour, current.Minute, current.Second, true).Julian;
                 var gmst = AASSidereal.MeanGreenwichSiderealTime(jd);
@@ -86,7 +90,68 @@ namespace SideRealClock {
                     tvSide.Text = $"Local sidereal time: {ts1:hh\\:mm\\:ss}";
                 });
             };
-            timer.Start();
+            SideRealTimer.Start();
+
+            LunarTimer = new Timer(15 * 1000.0) { AutoReset = true, Enabled = false };
+            LunarTimer.Elapsed += (s, e) => {
+                var now = DateTime.UtcNow;
+                var jd = GetJulianDay(now);
+                var ilm = GetMoonIllumination(jd.Julian);
+
+                var jdtt = AASDynamicalTime.UTC2TT(jd.Julian);
+                var rv = AASMoon.RadiusVector(jdtt);
+
+                var k = (int)AASMoonPhases.K(jd.FractionalYear);
+
+                var PrevNewMoonJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k - 1));
+                var PrevFirstQuarterJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k - 0.75));
+                var PrevFullMoonJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k - 0.5));
+                var PrevLastQuarterJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k - 0.25));
+                var NewMoonJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k));
+                var FirstQuarterJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k + 0.25));
+                var FullMoonJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k + 0.5));
+                var LastQuarterJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k + 0.75));
+
+                var PrevFirstQuarter = GetDateFromJulian(PrevFirstQuarterJD);
+                var PrevFullMoon = GetDateFromJulian(PrevFullMoonJD);
+                var PrevLastQuarter = GetDateFromJulian(PrevLastQuarterJD);
+                var NewMoon = GetDateFromJulian(NewMoonJD);
+                var FirstQuarter = GetDateFromJulian(FirstQuarterJD);
+                var FullMoon = GetDateFromJulian(FullMoonJD);
+                var LastQuarter = GetDateFromJulian(LastQuarterJD);
+
+                var Date2Phase = new Hashtable() {
+                    { PrevFirstQuarter.Date, "First quarter"  },
+                    { PrevFullMoon.Date, "Full moon" },
+                    { PrevLastQuarter.Date, "Last quarter" },
+                    { NewMoon.Date, "New moon" },
+                    { FirstQuarter.Date, "First quarter" },
+                    { FullMoon.Date, "Full moon" },
+                    { LastQuarter.Date, "Last quarter" }
+                };
+
+                var msg = "";
+                if (Date2Phase.ContainsKey(now.Date)) {
+                    msg = Date2Phase[now.Date].ToString();
+                }
+                else {
+                    if (PrevFirstQuarter.Date < now.Date && now.Date < PrevFullMoon.Date) msg = "Waxing Gibbous";
+                    else if (PrevFullMoon.Date < now.Date && now.Date < PrevLastQuarter.Date) msg = "Waning Gibbous";
+                    else if (PrevLastQuarter.Date < now.Date && now.Date < NewMoon.Date) msg = "Waning Crescent";
+                    else if (NewMoon.Date < now.Date && now.Date < FirstQuarter.Date) msg = "Waxing Crescent";
+                    else if (FirstQuarter.Date < now.Date && now.Date < FullMoon.Date) msg = "Waxing Gibbous";
+                    else if (FullMoon.Date < now.Date && now.Date < LastQuarter.Date) msg = "Waning Gibbous";
+                    else msg = "N/A";
+                }
+
+                var SynodicPeriod = NewMoonJD - PrevNewMoonJD;
+                var LunarDay = (jd.Julian - PrevNewMoonJD) % SynodicPeriod;
+
+                RunOnUiThread(() => {
+                    tvMoonPhase.Text = $"Moon phase:          Day {LunarDay:F3} - {msg}";
+                });
+            };
+            LunarTimer.Start();
 
             geocoder = new Geocoder(this, JLocale.Default);
         }
@@ -112,7 +177,8 @@ namespace SideRealClock {
 
         protected override void OnDestroy() {
             base.OnDestroy();
-            timer?.Stop();
+            SideRealTimer?.Stop();
+            LunarTimer?.Stop();
         }
 
         public async void OnLocationChanged(Android.Locations.Location location) {
@@ -173,6 +239,15 @@ namespace SideRealClock {
             var elongation = AASMoonIlluminatedFraction.GeocentricElongation(MoonCoord.X, MoonCoord.Y, SunCoord.X, SunCoord.Y);
             var phase_angle = AASMoonIlluminatedFraction.PhaseAngle(elongation, 368410.0, 149971520.0);
             return AASMoonIlluminatedFraction.IlluminatedFraction(phase_angle);
+        }
+
+        private AASDate GetJulianDay(DateTime date) {
+            return new AASDate(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, true);
+        }
+
+        private DateTime GetDateFromJulian(double JD) {
+            var jdn = new AASDate(JD, true);
+            return new DateTime((int)jdn.Year, (int)jdn.Month, (int)jdn.Day, (int)jdn.Hour, (int)jdn.Minute, (int)jdn.Second, DateTimeKind.Utc);
         }
     }
 }
