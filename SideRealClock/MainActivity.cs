@@ -66,6 +66,8 @@ namespace SideRealClock {
             var mins = doc.SelectSingleNode("//*[local-name() = 'path' and @id = 'minutes']") as XmlElement;
             var hour = doc.SelectSingleNode("//*[local-name() = 'path' and @id = 'hours']") as XmlElement;
 
+            var moon_dial = doc.SelectSingleNode("//*[local-name() = 'g' and @id = 'moon_dial']") as XmlElement;
+
             SideRealTimer = new Timer(1000.0) { AutoReset = true, Enabled = false };
             SideRealTimer.Elapsed += (s, e) => {
                 var current = DateTime.UtcNow;
@@ -146,6 +148,12 @@ namespace SideRealClock {
 
                 var SynodicPeriod = NewMoonJD - PrevNewMoonJD;
                 var LunarDay = (jd.Julian - PrevNewMoonJD) % SynodicPeriod;
+                var rot = 180.0 * LunarDay / SynodicPeriod;
+
+                moon_dial.SetAttribute("transform", $"rotate({rot.ToString(CultureInfo.InvariantCulture)},525,1005.3931)");
+
+                var svg3 = SVG.GetFromString(doc.OuterXml);
+                iv1.SetImageDrawable(new PictureDrawable(svg3.RenderToPicture()));
 
                 RunOnUiThread(() => {
                     tvMoonPhase.Text = $"Moon phase:          Day {LunarDay:F3} - {msg}";

@@ -100,7 +100,9 @@
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_foreground.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_round.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <AndroidResource Include="Resources\raw\clock.svg" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AASharp">
       <Version>2.12.0</Version>
@@ -114,9 +116,6 @@
       <Project>{29a605fe-5681-40fd-a528-71609b0c6ec5}</Project>
       <Name>SVGLib</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\raw\clock.svg" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\round_rect.xml" />
