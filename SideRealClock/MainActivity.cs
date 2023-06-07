@@ -11,6 +11,7 @@ using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.AppCompat.Widget;
 using System;
+using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Timers;
@@ -19,8 +20,7 @@ using Xamarin.Essentials;
 using Com.Caverock.Androidsvg;
 using AASharp;
 using JLocale = Java.Util.Locale;
-using System.Collections;
-using System.ComponentModel.Design;
+using Android.Graphics;
 
 namespace SideRealClock {
     [Activity(Label = "@string/app_name", Theme = "@style/Theme.AppCompat", MainLauncher = true)]
@@ -49,11 +49,27 @@ namespace SideRealClock {
             var tvZone = FindViewById<AppCompatTextView>(Resource.Id.tvZone);
             var tvSide = FindViewById<AppCompatTextView>(Resource.Id.tvSide);
             var tvMoonPhase = FindViewById<AppCompatTextView>(Resource.Id.tvMoonPhase);
+            var tvMoonIlm = FindViewById<AppCompatTextView>(Resource.Id.tvMoonIlm);
+
+            var ClockType = true; // means sidereal
+
             var iv1 = FindViewById<AppCompatImageView>(Resource.Id.iv1);
-            iv1.SetLayerType(Android.Views.LayerType.Hardware, null);
+            //iv1.SetLayerType(LayerType.Hardware, null);
+            iv1.Click += (s, e) => {
+                if (!ClockType) {
+                    ClockType = true; // switch to sidereal
+                    tvSide.SetTextColor(Color.Green);
+                    tvZone.SetTextColor(Color.LightGray);
+                }
+                else {
+                    ClockType = false;    // switch to zone
+                    tvSide.SetTextColor(Color.LightGray);
+                    tvZone.SetTextColor(Color.Green);
+                }
+            };
 
             SupportActionBar.Subtitle = $"SVG lib version: {SVG.Version}";
-
+            
             var str = "";
             using (var reader = new StreamReader(Resources.OpenRawResource(Resource.Raw.clock))) str = await reader.ReadToEndAsync();
             var svg1 = SVG.GetFromString(str);
@@ -75,6 +91,12 @@ namespace SideRealClock {
                 var gmst = AASSidereal.MeanGreenwichSiderealTime(jd);
                 var lmst = AASCoordinateTransformation.MapTo0To24Range(gmst + AASCoordinateTransformation.DegreesToHours(longitude));
                 var ts1 = TimeSpan.FromHours(lmst);
+                var now = DateTime.Now;
+                var ts2 = TimeSpan.Zero;
+                if (!ClockType) {
+                    ts2 = ts1;              // backup sidereal time
+                    ts1 = now.TimeOfDay;    // switch to zone time clock
+                }
 
                 var totalMins = ts1.Minutes + ts1.Seconds / 60.0f;
                 var totalHours = ts1.Hours + totalMins / 60.0f;
@@ -87,8 +109,10 @@ namespace SideRealClock {
                 var svg2 = SVG.GetFromString(doc.OuterXml);
                 iv1.SetImageDrawable(new PictureDrawable(svg2.RenderToPicture()));
 
+                if (!ClockType) ts1 = ts2;  // restore the sidereal time when needed
+
                 RunOnUiThread(() => {
-                    tvZone.Text = $"Zone time:           {DateTime.Now:HH\\:mm\\:ss}";
+                    tvZone.Text = $"Zone time:           {now:HH\\:mm\\:ss}";
                     tvSide.Text = $"Local sidereal time: {ts1:hh\\:mm\\:ss}";
                 });
             };
@@ -98,10 +122,10 @@ namespace SideRealClock {
             LunarTimer.Elapsed += (s, e) => {
                 var now = DateTime.UtcNow;
                 var jd = GetJulianDay(now);
-                var ilm = GetMoonIllumination(jd.Julian);
 
-                var jdtt = AASDynamicalTime.UTC2TT(jd.Julian);
-                var rv = AASMoon.RadiusVector(jdtt);
+                var ilm = GetMoonIllumination(jd.Julian);
+                //var jdtt = AASDynamicalTime.UTC2TT(jd.Julian);
+                //var rv = AASMoon.RadiusVector(jdtt);
 
                 var k = (int)AASMoonPhases.K(jd.FractionalYear);
 
@@ -114,6 +138,7 @@ namespace SideRealClock {
                 var FullMoonJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k + 0.5));
                 var LastQuarterJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k + 0.75));
 
+                var PrevNewMoon = GetDateFromJulian(PrevNewMoonJD);
                 var PrevFirstQuarter = GetDateFromJulian(PrevFirstQuarterJD);
                 var PrevFullMoon = GetDateFromJulian(PrevFullMoonJD);
                 var PrevLastQuarter = GetDateFromJulian(PrevLastQuarterJD);
@@ -147,8 +172,12 @@ namespace SideRealClock {
                 }
 
                 var SynodicPeriod = NewMoonJD - PrevNewMoonJD;
-                var LunarDay = (jd.Julian - PrevNewMoonJD) % SynodicPeriod;
-                var rot = 180.0 * LunarDay / SynodicPeriod;
+                var diff = TimeSpan.Zero;
+                if (NewMoon <= now) diff = now - NewMoon;
+                else diff = now - PrevNewMoon;
+
+                //var LunarDay = (jd.Julian - PrevNewMoonJD) % SynodicPeriod;
+                var rot = 180.0 * diff.TotalDays / SynodicPeriod;
 
                 moon_dial.SetAttribute("transform", $"rotate({rot.ToString(CultureInfo.InvariantCulture)},525,1005.3931)");
 
@@ -156,7 +185,8 @@ namespace SideRealClock {
                 iv1.SetImageDrawable(new PictureDrawable(svg3.RenderToPicture()));
 
                 RunOnUiThread(() => {
-                    tvMoonPhase.Text = $"Moon phase:          Day {LunarDay:F3} - {msg}";
+                    tvMoonPhase.Text = $"Moon phase:          Day {diff.TotalDays:F2} - {msg}";
+                    tvMoonIlm.Text = $"Moon illumination:   {(ilm * 100):F2}%";
                 });
             };
             LunarTimer.Start();

@@ -439,7 +439,7 @@
       </g>
       <path
          id="mask"
-         style="fill:#000000;fill-opacity:1;stroke:#ffa800;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;stroke-dashoffset:0"
+         style="fill:#00007F;fill-opacity:1;stroke:#ffa800;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;stroke-dashoffset:0"
          d="m 525,1020.2016 c 18.87286,0 34.17235,15.2995 34.17237,34.1723 -2e-5,18.8728 -15.29951,34.1723 -34.17237,34.1723 v 5.4156 c -48.91517,0 -88.56874,-39.6536 -88.56872,-88.5687 10e-6,-48.91511 39.65358,-88.56864 88.56872,-88.56864 v 5.41555 c 18.87288,0 34.17237,15.29948 34.17237,34.17234 0,18.87287 -15.29949,34.17235 -34.17237,34.17235 z"
          sodipodi:nodetypes="cscccccscc" />
     </g>
