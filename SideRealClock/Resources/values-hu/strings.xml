@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">SideRealClock</string>
+    <string name="action_settings">Settings</string>
+	<string name="FirstQuarter">Első negyed 🌓︎</string>
+	<string name="FullMoon">Telihold 🌕︎</string>
+	<string name="LastQuarter">Utólsó negyed 🌗</string>
+	<string name="NewMoon">Újhold 🌑︎</string>
+	<string name="WaxingGibbous">Dagadó Tányér 🌔</string>
+	<string name="WaningGibbous">Fogyó Tányér 🌖</string>
+	<string name="WaningCrescent">Fogyó Sarló 🌘</string>
+	<string name="WaxingCrescent">Dagadó Sarló 🌒</string>
+</resources>

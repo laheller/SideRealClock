@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">SideRealClock</string>
     <string name="action_settings">Settings</string>
+	<string name="FirstQuarter">First quarter 🌓︎</string>
+	<string name="FullMoon">Full moon 🌕︎</string>
+	<string name="LastQuarter">Last quarter 🌗</string>
+	<string name="NewMoon">New moon 🌑︎</string>
+	<string name="WaxingGibbous">Waxing Gibbous 🌔</string>
+	<string name="WaningGibbous">Waning Gibbous 🌖</string>
+	<string name="WaningCrescent">Waning Crescent 🌘</string>
+	<string name="WaxingCrescent">Waxing Crescent 🌒</string>
 </resources>

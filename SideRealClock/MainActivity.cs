@@ -21,6 +21,7 @@ using Com.Caverock.Androidsvg;
 using AASharp;
 using JLocale = Java.Util.Locale;
 using Android.Graphics;
+using SysTrace = System.Diagnostics.Trace;
 
 namespace SideRealClock {
     [Activity(Label = "@string/app_name", Theme = "@style/Theme.AppCompat", MainLauncher = true)]
@@ -48,6 +49,7 @@ namespace SideRealClock {
 
             var tvZone = FindViewById<AppCompatTextView>(Resource.Id.tvZone);
             var tvSide = FindViewById<AppCompatTextView>(Resource.Id.tvSide);
+            tvSide.SetTextColor(Color.Green);
             var tvMoonPhase = FindViewById<AppCompatTextView>(Resource.Id.tvMoonPhase);
             var tvMoonIlm = FindViewById<AppCompatTextView>(Resource.Id.tvMoonIlm);
 
@@ -83,6 +85,16 @@ namespace SideRealClock {
             var hour = doc.SelectSingleNode("//*[local-name() = 'path' and @id = 'hours']") as XmlElement;
 
             var moon_dial = doc.SelectSingleNode("//*[local-name() = 'g' and @id = 'moon_dial']") as XmlElement;
+
+            // load moon phase names
+            var MP_NewMoon = Resources.GetString(Resource.String.NewMoon);
+            var MP_WaxingCrescent = Resources.GetString(Resource.String.WaxingCrescent);
+            var MP_FirstQuarter = Resources.GetString(Resource.String.FirstQuarter);
+            var MP_WaxingGibbous = Resources.GetString(Resource.String.WaxingGibbous);
+            var MP_FullMoon = Resources.GetString(Resource.String.FullMoon);
+            var MP_WaningGibbous = Resources.GetString(Resource.String.WaningGibbous);
+            var MP_LastQuarter = Resources.GetString(Resource.String.LastQuarter);
+            var MP_WaningCrescent = Resources.GetString(Resource.String.WaningCrescent);
 
             SideRealTimer = new Timer(1000.0) { AutoReset = true, Enabled = false };
             SideRealTimer.Elapsed += (s, e) => {
@@ -137,6 +149,7 @@ namespace SideRealClock {
                 var FirstQuarterJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k + 0.25));
                 var FullMoonJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k + 0.5));
                 var LastQuarterJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k + 0.75));
+                var NextNewMoonJD = AASDynamicalTime.TT2UTC(AASMoonPhases.TruePhase(k + 1));
 
                 var PrevNewMoon = GetDateFromJulian(PrevNewMoonJD);
                 var PrevFirstQuarter = GetDateFromJulian(PrevFirstQuarterJD);
@@ -146,28 +159,31 @@ namespace SideRealClock {
                 var FirstQuarter = GetDateFromJulian(FirstQuarterJD);
                 var FullMoon = GetDateFromJulian(FullMoonJD);
                 var LastQuarter = GetDateFromJulian(LastQuarterJD);
+                var NextNewMoon = GetDateFromJulian(NextNewMoonJD);
 
                 var Date2Phase = new Hashtable() {
-                    { PrevFirstQuarter.Date, "First quarter"  },
-                    { PrevFullMoon.Date, "Full moon" },
-                    { PrevLastQuarter.Date, "Last quarter" },
-                    { NewMoon.Date, "New moon" },
-                    { FirstQuarter.Date, "First quarter" },
-                    { FullMoon.Date, "Full moon" },
-                    { LastQuarter.Date, "Last quarter" }
+                    { PrevFirstQuarter.Date, MP_FirstQuarter },
+                    { PrevFullMoon.Date, MP_FullMoon },
+                    { PrevLastQuarter.Date, MP_LastQuarter },
+                    { NewMoon.Date, MP_NewMoon },
+                    { FirstQuarter.Date, MP_FirstQuarter },
+                    { FullMoon.Date, MP_FullMoon },
+                    { LastQuarter.Date, MP_LastQuarter }
                 };
 
+                // setting up final moon phase name to display
                 var msg = "";
                 if (Date2Phase.ContainsKey(now.Date)) {
                     msg = Date2Phase[now.Date].ToString();
                 }
                 else {
-                    if (PrevFirstQuarter.Date < now.Date && now.Date < PrevFullMoon.Date) msg = "Waxing Gibbous";
-                    else if (PrevFullMoon.Date < now.Date && now.Date < PrevLastQuarter.Date) msg = "Waning Gibbous";
-                    else if (PrevLastQuarter.Date < now.Date && now.Date < NewMoon.Date) msg = "Waning Crescent";
-                    else if (NewMoon.Date < now.Date && now.Date < FirstQuarter.Date) msg = "Waxing Crescent";
-                    else if (FirstQuarter.Date < now.Date && now.Date < FullMoon.Date) msg = "Waxing Gibbous";
-                    else if (FullMoon.Date < now.Date && now.Date < LastQuarter.Date) msg = "Waning Gibbous";
+                    if (PrevFirstQuarter.Date < now.Date && now.Date < PrevFullMoon.Date) msg = MP_WaxingGibbous;
+                    else if (PrevFullMoon.Date < now.Date && now.Date < PrevLastQuarter.Date) msg = MP_WaningGibbous;
+                    else if (PrevLastQuarter.Date < now.Date && now.Date < NewMoon.Date) msg = MP_WaningCrescent;
+                    else if (NewMoon.Date < now.Date && now.Date < FirstQuarter.Date) msg = MP_WaxingCrescent;
+                    else if (FirstQuarter.Date < now.Date && now.Date < FullMoon.Date) msg = MP_WaxingGibbous;
+                    else if (FullMoon.Date < now.Date && now.Date < LastQuarter.Date) msg = MP_WaningGibbous;
+                    else if (LastQuarter.Date < now.Date && now.Date < NextNewMoon.Date) msg = MP_WaningCrescent;
                     else msg = "N/A";
                 }
 
