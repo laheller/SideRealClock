@@ -42,7 +42,7 @@ namespace SideRealClock {
             if (await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>() != PermissionStatus.Granted) await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
 
             lm = LocationManager.FromContext(this);
-            if (!lm.IsProviderEnabled(LocationManager.GpsProvider) || !lm.IsProviderEnabled(LocationManager.NetworkProvider)) {
+            if (!lm.IsProviderEnabled(LocationManager.GpsProvider) && !lm.IsProviderEnabled(LocationManager.NetworkProvider)) {
                 Toast.MakeText(this, "Please turn on GPS!", ToastLength.Short).Show();
                 StartActivity(new Intent(Settings.ActionLocationSourceSettings));
             }
@@ -98,8 +98,7 @@ namespace SideRealClock {
 
             SideRealTimer = new Timer(1000.0) { AutoReset = true, Enabled = false };
             SideRealTimer.Elapsed += (s, e) => {
-                var current = DateTime.UtcNow;
-                var jd = new AASDate(current.Year, current.Month, current.Day, current.Hour, current.Minute, current.Second, true).Julian;
+                var jd = GetJulianDay(DateTime.UtcNow).Julian;
                 var gmst = AASSidereal.MeanGreenwichSiderealTime(jd);
                 var lmst = AASCoordinateTransformation.MapTo0To24Range(gmst + AASCoordinateTransformation.DegreesToHours(longitude));
                 var ts1 = TimeSpan.FromHours(lmst);
@@ -136,8 +135,6 @@ namespace SideRealClock {
                 var jd = GetJulianDay(now);
 
                 var ilm = GetMoonIllumination(jd.Julian);
-                //var jdtt = AASDynamicalTime.UTC2TT(jd.Julian);
-                //var rv = AASMoon.RadiusVector(jdtt);
 
                 var k = (int)AASMoonPhases.K(jd.FractionalYear);
 
@@ -218,10 +215,16 @@ namespace SideRealClock {
         protected override void OnPause() {
             base.OnPause();
             lm?.RemoveUpdates(this);
+
+            SideRealTimer?.Stop();
+            LunarTimer?.Stop();
         }
 
         protected override void OnResume() {
             base.OnResume();
+            SideRealTimer?.Start();
+            LunarTimer?.Start();
+
             if (lm == null) return;
 
             if (lm.IsProviderEnabled(LocationManager.GpsProvider)) lm.RequestLocationUpdates(LocationManager.GpsProvider, 1000L, 1.0f, this);
@@ -231,8 +234,6 @@ namespace SideRealClock {
 
         protected override void OnDestroy() {
             base.OnDestroy();
-            SideRealTimer?.Stop();
-            LunarTimer?.Stop();
         }
 
         public async void OnLocationChanged(Android.Locations.Location location) {
@@ -243,7 +244,7 @@ namespace SideRealClock {
 
             var addrs = await geocoder.GetFromLocationAsync(latitude, longitude, 1);
             var addr0 = addrs[0];
-            FindViewById<AppCompatTextView>(Resource.Id.tvLocation).Text = $"Location:            {addr0.Locality} {addr0.FeatureName}";
+            FindViewById<AppCompatTextView>(Resource.Id.tvLocation).Text = $"Location:            {addr0.Locality} {addr0.Thoroughfare} {addr0.FeatureName}";
         }
 
         public void OnProviderDisabled(string provider) {
